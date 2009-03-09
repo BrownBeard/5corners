@@ -1,0 +1,4 @@
+Import('env')
+env.Program('simple', 'simple.cpp')
+
+# vim: ft=python
