@@ -1,0 +1,4 @@
+Import('env')
+env.Program('test', ['main.cpp', 'FCTree.cpp'])
+
+# vim: ft=python
