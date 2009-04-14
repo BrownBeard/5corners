@@ -1,0 +1,4 @@
+Import('env')
+env.Library('lib5corners.a', 'Fl_5Corners_Trap_Window.cpp')
+
+# vim: ft=python
