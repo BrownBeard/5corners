@@ -1,4 +1,10 @@
 Import('env')
-env.Program('simple', 'simple.cpp')
+env.MergeFlags([
+    '-L../build',
+    '-lfltk_5corners',
+])
+for testsrc in env.Glob('*.cpp'):
+    teststr = str(testsrc)
+    env.Program(teststr[:-4], teststr)
 
 # vim: ft=python

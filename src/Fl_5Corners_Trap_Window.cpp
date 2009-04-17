@@ -18,13 +18,24 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <cstdio>
+#include <FL/Fl.H>
 #include <FL/Fl_Window.H>
+#include <FL/x.H>
 #include "Fl_5Corners_Trap_Window.h"
 using namespace std;
 
 // Fl_5Corners_Trap_Window::handle(event) {{{
 int Fl_5Corners_Trap_Window::handle(int event)
 {
+    if (event == FL_ENTER){
+        // hooray for simple solutions
+        XGrabPointer(fl_display, fl_xid(this), True,
+                     ButtonPressMask | ButtonReleaseMask | PointerMotionMask,
+                     GrabModeAsync, GrabModeAsync, fl_xid(this),
+                     None, CurrentTime);
+        return 1;
+    }
     return 0;
 }
 // }}}

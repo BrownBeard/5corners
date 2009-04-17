@@ -22,9 +22,20 @@
 #include "../src/Fl_5Corners_Trap_Window.h"
 using namespace std;
 
+// because Fl_5Corners_Trap_Window is abstract, we need this class
+class MyTrapWindow : public Fl_5Corners_Trap_Window
+{
+public:
+    MyTrapWindow(int x, int y, int w, int h, const char* l)
+    : Fl_5Corners_Trap_Window(x, y, w, h, l) {}
+
+    int handle(int event) { return Fl_5Corners_Trap_Window::handle(event); }
+};
+
 int main(int argc, char* argv[])
 {
-    Fl_5Corners_Trap_Window window(0, 0, 640, 480, "Simple Test");
+    // test trapping the mouse inside a window
+    MyTrapWindow window(0, 0, 640, 480, "Trap Test");
     window.show(argc, argv);
     Fl::run();
 }

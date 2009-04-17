@@ -31,8 +31,9 @@ public:
     Fl_5Corners_Trap_Window(int x, int y, int w, int h, const char* l = 0)
     : Fl_Window(x, y, w, h, l) {}
 
-    // subclasses call this to trap the mouse
-    int handle(int event);
+    // subclasses implement this and call Fl_5Corners_Trap_Window::handle()
+    // to trap the mouse
+    int handle(int event) = 0;
 };
 // }}}
 
