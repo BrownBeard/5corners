@@ -1,4 +1,4 @@
-// Fl_5Corners_Trap_Window.cpp
+// Fl_5C_Trap_Window.h
 // Copyright (C) 2009 Sam Bateman, Adam Seyfarth
 // samuel.bateman@gmail.com
 // adam.seyfarth@gmail.com
@@ -18,13 +18,23 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <FL/Fl_Window.H>
-#include "Fl_5Corners_Trap_Window.h"
-using namespace std;
+#ifndef _5C_FL_5C_TRAP_WINDOW_H
+#define _5C_FL_5C_TRAP_WINDOW_H
 
-// Fl_5Corners_Trap_Window::handle(event) {{{
-int Fl_5Corners_Trap_Window::handle(int event)
+#include <FL/Fl_Window.H>
+
+// class Fl_5C_Trap_Window {{{
+class Fl_5C_Trap_Window : public Fl_Window
 {
-    return 0;
-}
+public:
+    // constructor
+    Fl_5C_Trap_Window(int x, int y, int w, int h, const char* l = 0)
+    : Fl_Window(x, y, w, h, l) {}
+
+    // subclasses implement this and call Fl_5C_Trap_Window::handle()
+    // to trap the mouse
+    int handle(int event) = 0;
+};
 // }}}
+
+#endif  // _5C_FL_5C_TRAP_WINDOW_H

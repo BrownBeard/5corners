@@ -1,4 +1,4 @@
-// Fl_5Corners_Trap_Window.h
+// trap.cpp
 // Copyright (C) 2009 Sam Bateman, Adam Seyfarth
 // samuel.bateman@gmail.com
 // adam.seyfarth@gmail.com
@@ -18,22 +18,24 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef _5C_FL_5CORNERS_TRAP_WINDOW_H
-#define _5C_FL_5CORNERS_TRAP_WINDOW_H
+#include <FL/Fl.H>
+#include "../src/Fl_5C_Trap_Window.h"
+using namespace std;
 
-#include <FL/Fl_Window.H>
-
-// class Fl_5Corners_Trap_Window {{{
-class Fl_5Corners_Trap_Window : public Fl_Window
+// because Fl_5Corners_Trap_Window is abstract, we need this class
+class MyTrapWindow : public Fl_5C_Trap_Window
 {
 public:
-    // constructor
-    Fl_5Corners_Trap_Window(int x, int y, int w, int h, const char* l = 0)
-    : Fl_Window(x, y, w, h, l) {}
+    MyTrapWindow(int x, int y, int w, int h, const char* l)
+    : Fl_5C_Trap_Window(x, y, w, h, l) {}
 
-    // subclasses call this to trap the mouse
-    int handle(int event);
+    int handle(int event) { return Fl_5C_Trap_Window::handle(event); }
 };
-// }}}
 
-#endif  // _5C_FL_5CORNERS_TRAP_WINDOW_H
+int main(int argc, char* argv[])
+{
+    // test trapping the mouse inside a window
+    MyTrapWindow window(0, 0, 640, 480, "Trap Test");
+    window.show(argc, argv);
+    Fl::run();
+}

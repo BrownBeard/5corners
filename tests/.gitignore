@@ -1,2 +1,4 @@
 simple
+trap
 *.o
+.*.swp
