@@ -21,15 +21,15 @@
 #ifndef _5C_FL_5C_TRAP_WINDOW_H
 #define _5C_FL_5C_TRAP_WINDOW_H
 
-#include <FL/Fl_Window.H>
+#include <FL/Fl_Double_Window.H>
 
 // class Fl_5C_Trap_Window {{{
-class Fl_5C_Trap_Window : public Fl_Window
+class Fl_5C_Trap_Window : public Fl_Double_Window
 {
 public:
     // constructor
     Fl_5C_Trap_Window(int x, int y, int w, int h, const char* l = 0)
-    : Fl_Window(x, y, w, h, l) {}
+    : Fl_Double_Window(x, y, w, h, l) {}
 
     // subclasses implement this and call Fl_5C_Trap_Window::handle()
     // to trap the mouse
