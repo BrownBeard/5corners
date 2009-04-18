@@ -18,14 +18,17 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "FCTree.h"
+#include <cassert>
+#include "Fl_5C_Tree.h"
 
 using namespace std;
+using namespace tr1;
 
-static struct NodeItems {
+struct NodeItems {
     Fl_5C_Node *node;
     Fl_5C_Item *items;
 };
+
 
 std::ostream& operator<<(std::ostream& os, const Fl_5C_Node& n) {
     if (n.item.leaf) {
@@ -39,17 +42,19 @@ std::ostream& operator<<(std::ostream& os, const Fl_5C_Node& n) {
 }
 
 std::ostream& operator<<(std::ostream& os, const Fl_5C_Tree& t) {
-    return os << t.getRootNode();
+    return os << *(t.getRootNode());
 }
 
-NodeItems *Fl_5C_Tree::buildNode(Fl_5C_Item *items, Fl_5C_Item *orig) {
+NodeItems buildNode(Fl_5C_Item *items,
+                    Fl_5C_Item *orig,
+                    unordered_map<unsigned long, Fl_5C_Node *>& table) {
     NodeItems ni;
     NodeItems res;
 
     assert(items < orig + (sizeof(orig) / sizeof(orig[0])));
 
     if (items[0].shortcut != 0) {
-        shortcut_table[items[0].shortcut] = ni.node;
+        table[items[0].shortcut] = ni.node;
     }
 
     if (items[0].leaf) {
@@ -61,7 +66,7 @@ NodeItems *Fl_5C_Tree::buildNode(Fl_5C_Item *items, Fl_5C_Item *orig) {
     ni.items = items;
 
     for (int i = 0; i < 4; i++) {
-        res = buildNode(ni.items, orig);
+        res = buildNode(ni.items, orig, table);
         ni.node->children.push_back(res.node);
         ni.items = res.items;
     }
@@ -81,7 +86,7 @@ void Fl_5C_Tree::setItems(Fl_5C_Item *items) {
     Fl_5C_Item *remaining;
     NodeItems res;
     clear();
-    res = buildNode(items, items);
+    res = buildNode(items, items, shortcut_table);
     root = res.node;
 }
 
@@ -94,7 +99,7 @@ vector<Fl_5C_Item> Fl_5C_Tree::getItems(Fl_5C_Node *node) {
     }
 
     retval.push_back(node->item);
-    for (vector<Fl_5C_Node>::iterator i = node->children.start(); i != node->children.end(); i++) {
+    for (vector<Fl_5C_Node *>::iterator i = node->children.begin(); i != node->children.end(); i++) {
         res = getItems(*i);
         retval.insert(retval.end(), res.begin(), res.end());
     }
@@ -106,7 +111,7 @@ vector<Fl_5C_Item> Fl_5C_Tree::getItems() {
     return getItems(root);
 }
 
-Fl_5C_Node *Fl_5C_Tree::getRootNode() {
+Fl_5C_Node *Fl_5C_Tree::getRootNode() const {
     return root;
 }
 

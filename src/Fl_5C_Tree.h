@@ -26,17 +26,22 @@
 #include <ostream>
 #include <vector>
 #include <tr1/unordered_map>
+#include <FL/Fl.H>
+#include <FL/Fl_Widget.H>
+
+using namespace std;
+using namespace tr1;
 
 enum {FL_5C_NW, FL_5C_NE, FL_5C_SE, FL_5C_SW};
 
-using namespace std;
+struct Fl_5C_Node;
+struct Fl_5C_Item;
 
 class Fl_5C_Tree {
 private:
     Fl_5C_Node *root;
-    tr1::unordered_map<unsigned long, Fl_5C_Node *> shortcut_table;
+    unordered_map<unsigned long, Fl_5C_Node *> shortcut_table;
 
-    Fl_5C_Node *buildNode(Fl_5C_Item *items);
     vector<Fl_5C_Item> getItems(Fl_5C_Node *node);
 
 public:
@@ -44,23 +49,23 @@ public:
     void clear();
     void setItems(Fl_5C_Item *items);
     vector<Fl_5C_Item> getItems();
-    Fl_5C_Node *getRootNode();
+    Fl_5C_Node *getRootNode() const;
     Fl_5C_Node *getShortcutNode(unsigned long shortcut);
     void loadConfig(string file);
+};
+
+struct Fl_5C_Item {
+    const char *label;
+    const char *shortcut_id;
+    unsigned long shortcut;
+    Fl_Callback *callback;
+    void *user_data;
+    bool leaf;
 };
 
 struct Fl_5C_Node {
     Fl_5C_Item item;
     vector<Fl_5C_Node *> children;
-};
-
-struct Fl_5C_Item {
-    const char *label;
-    const char *shortcut_id = NULL;
-    unsigned long shortcut = 0;
-    Fl_Callback *callback = NULL;
-    void *user_data = NULL;
-    bool leaf = 0;
 };
 
 #endif
