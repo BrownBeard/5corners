@@ -65,6 +65,8 @@ struct Fl_5C_Item {
     bool leaf;
 };
 
+#define FL_5C_EMPTY_ITEM {"__empty__", 0, 0, 0, 0, true}
+
 struct Fl_5C_Node {
     Fl_5C_Item item;
     vector<Fl_5C_Node *> children;

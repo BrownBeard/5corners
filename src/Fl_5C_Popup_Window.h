@@ -51,6 +51,6 @@ private:
 // }}}
 
 // convenience function to pop up a window
-Fl_5C_Item* fl_popup_5c_window(Fl_5C_Tree* tree);
+void fl_popup_5c_window(Fl_5C_Tree* tree);
 
 #endif  // _5C_FL_5C_POPUP_WINDOW_H

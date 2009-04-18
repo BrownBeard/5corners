@@ -102,10 +102,31 @@ int Fl_5C_Popup_Window::handle(int event)
         if (Fl::event_button() == 1){
             // left click: move forward through the tree
             Fl_5C_Node* node = impl->current_node->children[impl->highlighted];
+            if (node->item.leaf){
+                // leaf node, select this one
+                impl->selection = &node->item;
+                hide();
+            }
+            else {
+                // non-leaf node, descend the tree
+                impl->current_node = node;
+                redraw();
+            }
         }
         else if (Fl::event_button() == 3){
             // right click: move backward through the tree
+            if (impl->current_node == impl->tree->getRootNode()){
+                // highest level, exit the popup window
+                impl->selection = 0;
+                hide();
+            }
+            else {
+                // ascend to a higher level
+                impl->current_node = impl->current_node->parent;
+                redraw();
+            }
         }
+        return 1;
     }
     else if (event == FL_MOVE){
         // highlight the appropriate corner
@@ -140,10 +161,12 @@ void Fl_5C_Popup_Window::setTree(Fl_5C_Tree* tree)
 // }}}
 
 // fl_popup_5c_window(tree) {{{
-Fl_5C_Item* fl_popup_5c_window(Fl_5C_Tree* tree)
+void fl_popup_5c_window(Fl_5C_Tree* tree)
 {
     Fl_5C_Popup_Window window(0, 0, 320, 240, "5Corners");
     window.setTree(tree);
-    return window.popup();
+    Fl_5C_Item* item = window.popup();
+    if (!item) return;
+    if (item->callback) item->callback(&window, item->user_data);
 }
 // }}}

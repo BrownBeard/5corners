@@ -34,24 +34,28 @@ public:
     int handle(int event);
 };
 
+void cb(Fl_Widget* w, void* data)
+{
+    printf("item = %s\n", (const char*)data);
+}
+
 Fl_5C_Item items[] =
 {
     {"File"},
-        {"New",  0, 0, 0, 0, true},
-        {"Open", 0, 0, 0, 0, true},
-        {"Save", 0, 0, 0, 0, true},
-        {"Exit", 0, 0, 0, 0, true},
-    {"Edit", 0, 0, 0, 0, true},
-    {"View", 0, 0, 0, 0, true},
-    {"Help", 0, 0, 0, 0, true},
+        {"New",  0, 0, cb, (void*)"New",  true},
+        {"Open", 0, 0, cb, (void*)"Open", true},
+        {"Save", 0, 0, cb, (void*)"Save", true},
+        {"Exit", 0, 0, cb, (void*)"Exit", true},
+    {"Edit", 0, 0, cb, (void*)"Edit", true},
+    {"View", 0, 0, cb, (void*)"View", true},
+    {"Help", 0, 0, cb, (void*)"Help", true},
 };
 
 int MyWindow::handle(int event)
 {
     static Fl_5C_Tree tree(items);
     if (event == FL_PUSH && Fl::event_button() == 3){
-        Fl_5C_Item* item = fl_popup_5c_window(&tree);
-        printf("item is %p\n", item);
+        fl_popup_5c_window(&tree);
     }
 }
 
