@@ -147,6 +147,6 @@ void loadConfig(const string &name) {
     while (true) {
         f.getline(line, 256);
         if (f.eof()) break;
-        cout << line;
+        cout << line << endl;
     }
 }
