@@ -70,6 +70,7 @@ NodeItems buildNode(Fl_5C_Item *items,
 
     for (int i = 0; i < 4; i++) {
         res = buildNode(ni.items, table);
+        res.node->parent = ni.node;
         ni.node->children.push_back(res.node);
         ni.items = res.items;
     }
@@ -78,6 +79,7 @@ NodeItems buildNode(Fl_5C_Item *items,
 }
 
 Fl_5C_Tree::Fl_5C_Tree(Fl_5C_Item *items) {
+    root = NULL;
     setItems(items);
 }
 
@@ -93,6 +95,7 @@ void Fl_5C_Tree::setItems(Fl_5C_Item *items) {
     root->item.label = "";
     for (int i = 0; i < 4; i++) {
         res = buildNode(remaining, shortcut_table);
+        res.node->parent = root;
         root->children.push_back(res.node);
         remaining = res.items;
     }
@@ -132,5 +135,18 @@ Fl_5C_Node *Fl_5C_Tree::getShortcutNode(unsigned long shortcut) {
     }
 }
 
-void loadConfig(string file) {
+void loadConfig(const string &name) {
+    char filename[FL_PATH_MAX];
+    char line[256];
+    int tmp;
+
+    fl_filename_expand(filename, ("~/.5corners/" + name).c_str());
+
+    ifstream f(filename);
+
+    while (true) {
+        f.getline(line, 256);
+        if (f.eof()) break;
+        cout << line;
+    }
 }

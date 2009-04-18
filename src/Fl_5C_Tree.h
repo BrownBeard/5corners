@@ -24,9 +24,11 @@
 #include <string>
 #include <iostream>
 #include <ostream>
+#include <fstream>
 #include <vector>
 #include <tr1/unordered_map>
 #include <FL/Fl.H>
+#include <FL/filename.H>
 #include <FL/Fl_Widget.H>
 
 using namespace std;
@@ -51,7 +53,7 @@ public:
     vector<Fl_5C_Item> getItems();
     Fl_5C_Node *getRootNode() const;
     Fl_5C_Node *getShortcutNode(unsigned long shortcut);
-    void loadConfig(string file);
+    void loadConfig(string name);
 };
 
 struct Fl_5C_Item {
@@ -66,6 +68,7 @@ struct Fl_5C_Item {
 struct Fl_5C_Node {
     Fl_5C_Item item;
     vector<Fl_5C_Node *> children;
+    Fl_5C_Node *parent;
 };
 
 std::ostream& operator<<(std::ostream& os, const Fl_5C_Node& n);
