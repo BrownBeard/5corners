@@ -1,4 +1,4 @@
-// trap.cpp
+// popup.cpp
 // Copyright (C) 2009 Sam Bateman, Adam Seyfarth
 // samuel.bateman@gmail.com
 // adam.seyfarth@gmail.com
@@ -18,24 +18,34 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <cstdio>
 #include <FL/Fl.H>
-#include "../src/Fl_5C_Trap_Window.h"
+#include <FL/Fl_Window.H>
+#include "../src/Fl_5C_Popup_Window.h"
 using namespace std;
 
-// because Fl_5Corners_Trap_Window is abstract, we need this class
-class MyTrapWindow : public Fl_5C_Trap_Window
+class MyWindow : public Fl_Window
 {
 public:
-    MyTrapWindow(int x, int y, int w, int h, const char* l)
-    : Fl_5C_Trap_Window(x, y, w, h, l) {}
+    MyWindow(int x, int y, int w, int h, const char* l)
+    : Fl_Window(x, y, w, h, l) {}
 
-    int handle(int event) { return Fl_5C_Trap_Window::handle(event); }
+    int handle(int event);
 };
+
+int MyWindow::handle(int event)
+{
+    if (event == FL_PUSH && Fl::event_button() == 3){
+        Fl_5C_Tree* tree = 0;
+        Fl_5C_Item* item = fl_popup_5c_window(tree);
+        printf("item is %p\n", item);
+    }
+}
 
 int main(int argc, char* argv[])
 {
-    // test trapping the mouse inside a window
-    MyTrapWindow window(0, 0, 640, 480, "Trap Test");
+    // test popping up a 5corners window
+    MyWindow window(0, 0, 640, 480, "Popup Test");
     window.show(argc, argv);
     Fl::run();
 }

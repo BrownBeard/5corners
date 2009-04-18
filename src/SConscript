@@ -1,4 +1,4 @@
 Import('env')
-env.Library('libfltk_5corners.a', 'Fl_5Corners_Trap_Window.cpp')
+env.Library('libfltk_5corners.a', env.Glob('*.cpp'))
 
 # vim: ft=python

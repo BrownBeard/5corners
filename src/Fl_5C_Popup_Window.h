@@ -1,4 +1,4 @@
-// Fl_5Corners_Trap_Window.cpp
+// Fl_5C_Popup_Window.h
 // Copyright (C) 2009 Sam Bateman, Adam Seyfarth
 // samuel.bateman@gmail.com
 // adam.seyfarth@gmail.com
@@ -18,24 +18,39 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <cstdio>
-#include <FL/Fl.H>
-#include <FL/Fl_Window.H>
-#include <FL/x.H>
-#include "Fl_5Corners_Trap_Window.h"
-using namespace std;
+#ifndef _5C_FL_5C_POPUP_WINDOW_H
+#define _5C_FL_5C_POPUP_WINDOW_H
 
-// Fl_5Corners_Trap_Window::handle(event) {{{
-int Fl_5Corners_Trap_Window::handle(int event)
+#include "Fl_5C_Trap_Window.h"
+
+class Fl_5C_Tree;
+class Fl_5C_Item;
+
+// class Fl_5C_Popup_Window {{{
+class Fl_5C_Popup_Window : public Fl_5C_Trap_Window
 {
-    if (event == FL_ENTER){
-        // hooray for simple solutions
-        XGrabPointer(fl_display, fl_xid(this), True,
-                     ButtonPressMask | ButtonReleaseMask | PointerMotionMask,
-                     GrabModeAsync, GrabModeAsync, fl_xid(this),
-                     None, CurrentTime);
-        return 1;
-    }
-    return 0;
-}
+public:
+    // constructor and destructor
+    Fl_5C_Popup_Window(int x, int y, int w, int h, const char* l = 0);
+   ~Fl_5C_Popup_Window();
+
+    // functions to manipulate the tree
+    void clearTree();
+    Fl_5C_Tree* getTree();
+    void setTree(Fl_5C_Tree* tree);
+
+    // functions to use the window
+    void draw();
+    int handle(int event);
+    Fl_5C_Item* popup();
+
+private:
+    struct Impl;
+    Impl* impl;
+};
 // }}}
+
+// convenience function to pop up a window
+Fl_5C_Item* fl_popup_5c_window(Fl_5C_Tree* tree);
+
+#endif  // _5C_FL_5C_POPUP_WINDOW_H
