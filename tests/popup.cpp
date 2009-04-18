@@ -22,6 +22,7 @@
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>
 #include "../src/Fl_5C_Popup_Window.h"
+#include "../src/Fl_5C_Tree.h"
 using namespace std;
 
 class MyWindow : public Fl_Window
@@ -33,11 +34,23 @@ public:
     int handle(int event);
 };
 
+Fl_5C_Item items[] =
+{
+    {"File"},
+        {"New",  0, 0, 0, 0, true},
+        {"Open", 0, 0, 0, 0, true},
+        {"Save", 0, 0, 0, 0, true},
+        {"Exit", 0, 0, 0, 0, true},
+    {"Edit", 0, 0, 0, 0, true},
+    {"View", 0, 0, 0, 0, true},
+    {"Help", 0, 0, 0, 0, true},
+};
+
 int MyWindow::handle(int event)
 {
+    static Fl_5C_Tree tree(items);
     if (event == FL_PUSH && Fl::event_button() == 3){
-        Fl_5C_Tree* tree = 0;
-        Fl_5C_Item* item = fl_popup_5c_window(tree);
+        Fl_5C_Item* item = fl_popup_5c_window(&tree);
         printf("item is %p\n", item);
     }
 }

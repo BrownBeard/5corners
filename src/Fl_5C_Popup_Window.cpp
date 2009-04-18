@@ -19,10 +19,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <cstdio>
+#include <vector>
 #include <FL/Fl.H>
 #include <FL/fl_draw.H>
 #include "Fl_5C_Popup_Window.h"
-//#include "Fl_5C_Tree.h"
+#include "Fl_5C_Tree.h"
 using namespace std;
 
 // struct Fl_5C_Popup_Window::Impl {{{
@@ -30,6 +31,8 @@ struct Fl_5C_Popup_Window::Impl
 {
     Fl_5C_Tree* tree;
     Fl_5C_Item* selection;
+    Fl_5C_Node* current_node;
+    int highlighted;
 };
 // }}}
 // Fl_5C_Popup_Window::Fl_5C_Popup_Window(x, y, w, h, l) {{{
@@ -40,6 +43,8 @@ Fl_5C_Popup_Window::Fl_5C_Popup_Window(int x, int y, int w, int h,
     impl = new Impl;
     impl->tree = 0;
     impl->selection = 0;
+    impl->current_node = 0;
+    impl->highlighted = 0;
 }
 // }}}
 // Fl_5C_Popup_Window::~Fl_5C_Popup_Window() {{{
@@ -71,6 +76,20 @@ void Fl_5C_Popup_Window::draw()
     fl_rect(w() / 2, 0,       w() / 2, h() / 2);
     fl_rect(0,       h() / 2, w() / 2, h() / 2);
     fl_rect(w() / 2, h() / 2, w() / 2, h() / 2);
+
+    // draw the four subnodes
+    fl_font(FL_TIMES, 20);
+    for (size_t i = 0; i < 4; ++i){
+        Fl_5C_Item& item = impl->current_node->children[i]->item;
+        int x = (i == 0 || i == 3) ? 0 : w() / 2;
+        int y = (i == 0 || i == 1) ? 0 : h() / 2;
+        if (impl->highlighted == i){
+            fl_color(0xff, 0xff, 0xaa);
+            fl_rectf(x + 1, y + 1, w() / 2 - 2, h() / 2 - 2);
+        }
+        fl_color(FL_BLACK);
+        fl_draw(item.label, x, y, w() / 2, h() / 2, FL_ALIGN_CENTER);
+    }
 }
 // }}}
 // Fl_5C_Popup_Window::handle(event) {{{
@@ -79,7 +98,23 @@ int Fl_5C_Popup_Window::handle(int event)
     // let Fl_5C_Trap_Window trap the pointer
     if (Fl_5C_Trap_Window::handle(event)) return 1;
 
-
+    if (event == FL_PUSH){
+        if (Fl::event_button() == 1){
+            // left click: move forward through the tree
+            Fl_5C_Node* node = impl->current_node->children[impl->highlighted];
+        }
+        else if (Fl::event_button() == 3){
+            // right click: move backward through the tree
+        }
+    }
+    else if (event == FL_MOVE){
+        // highlight the appropriate corner
+        int i = (Fl::event_x() > w() / 2) ? 1 : 0;
+        int j = (Fl::event_y() > h() / 2) ? 1 : 0;
+        impl->highlighted = j * 2 + (j ? 1 - i : i);
+        redraw();
+        return 1;
+    }
 
     return 0;
 }
@@ -100,6 +135,7 @@ Fl_5C_Item* Fl_5C_Popup_Window::popup()
 void Fl_5C_Popup_Window::setTree(Fl_5C_Tree* tree)
 {
     impl->tree = tree;
+    impl->current_node = tree->getRootNode();
 }
 // }}}
 

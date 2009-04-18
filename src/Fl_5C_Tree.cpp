@@ -78,6 +78,7 @@ NodeItems buildNode(Fl_5C_Item *items,
 }
 
 Fl_5C_Tree::Fl_5C_Tree(Fl_5C_Item *items) {
+    root = NULL;
     setItems(items);
 }
 
