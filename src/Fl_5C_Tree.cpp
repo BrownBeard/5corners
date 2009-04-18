@@ -34,39 +34,42 @@ std::ostream& operator<<(std::ostream& os, const Fl_5C_Node& n) {
     if (n.item.leaf) {
         return os << n.item.label << " {}";
     } else {
-        return os << n.item.label << " {" << n.children[0]
-            << ", " << n.children[1]
-            << ", " << n.children[2]
-            << ", " << n.children[3] << "}";
+        return os << n.item.label << " {" << *n.children[0]
+            << ", " << *n.children[1]
+            << ", " << *n.children[2]
+            << ", " << *n.children[3] << "}";
     }
 }
 
 std::ostream& operator<<(std::ostream& os, const Fl_5C_Tree& t) {
-    return os << *(t.getRootNode());
+    return os << *(t.getRootNode()->children[0]) << endl <<
+                 *(t.getRootNode()->children[1]) << endl <<
+                 *(t.getRootNode()->children[2]) << endl <<
+                 *(t.getRootNode()->children[3]);
 }
 
 NodeItems buildNode(Fl_5C_Item *items,
-                    Fl_5C_Item *orig,
                     unordered_map<unsigned long, Fl_5C_Node *>& table) {
     NodeItems ni;
     NodeItems res;
 
-    assert(items < orig + (sizeof(orig) / sizeof(orig[0])));
+    cout << "buildNode .. " << items[0].label << endl;
 
     if (items[0].shortcut != 0) {
         table[items[0].shortcut] = ni.node;
     }
 
+    ni.items = items+1;
+    ni.node = new Fl_5C_Node;
+    ni.node->item = items[0];
+
     if (items[0].leaf) {
-        ni.node->item = items[0];
-        ni.items = items+1;
+        cout << "leaf" << endl;
         return ni;
     }
 
-    ni.items = items;
-
     for (int i = 0; i < 4; i++) {
-        res = buildNode(ni.items, orig, table);
+        res = buildNode(ni.items, table);
         ni.node->children.push_back(res.node);
         ni.items = res.items;
     }
@@ -83,11 +86,17 @@ void Fl_5C_Tree::clear() {
 }
 
 void Fl_5C_Tree::setItems(Fl_5C_Item *items) {
-    Fl_5C_Item *remaining;
+    Fl_5C_Item *remaining = items;
     NodeItems res;
     clear();
-    res = buildNode(items, items, shortcut_table);
-    root = res.node;
+    root = new Fl_5C_Node;
+    root->item.label = "";
+    for (int i = 0; i < 4; i++) {
+        res = buildNode(remaining, shortcut_table);
+        root->children.push_back(res.node);
+        remaining = res.items;
+    }
+
 }
 
 vector<Fl_5C_Item> Fl_5C_Tree::getItems(Fl_5C_Node *node) {

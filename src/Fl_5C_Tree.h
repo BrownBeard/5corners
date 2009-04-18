@@ -68,4 +68,7 @@ struct Fl_5C_Node {
     vector<Fl_5C_Node *> children;
 };
 
+std::ostream& operator<<(std::ostream& os, const Fl_5C_Node& n);
+std::ostream& operator<<(std::ostream& os, const Fl_5C_Tree& t);
+
 #endif

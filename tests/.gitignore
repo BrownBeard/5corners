@@ -1,4 +1,6 @@
 simple
 trap
+popup
+treetest
 *.o
 .*.swp
