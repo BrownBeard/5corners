@@ -53,7 +53,7 @@ public:
     vector<Fl_5C_Item> getItems();
     Fl_5C_Node *getRootNode() const;
     Fl_5C_Node *getShortcutNode(unsigned long shortcut);
-    void loadConfig(string name);
+    void loadConfig(const char *name);
 };
 
 struct Fl_5C_Item {
