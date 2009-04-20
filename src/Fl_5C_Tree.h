@@ -39,10 +39,11 @@ enum {FL_5C_NW, FL_5C_NE, FL_5C_SE, FL_5C_SW};
 struct Fl_5C_Node;
 struct Fl_5C_Item;
 
+//! Holds the root of the tree, handles shortcut information.
 class Fl_5C_Tree {
 private:
-    Fl_5C_Node *root;
-    unordered_map<unsigned long, Fl_5C_Node *> shortcut_table;
+    Fl_5C_Node *root; //!< The root node of the tree.
+    unordered_map<unsigned long, Fl_5C_Node *> shortcut_table; //!< Maps keys to nodes
 
     vector<Fl_5C_Item> getItems(Fl_5C_Node *node);
 
@@ -53,24 +54,30 @@ public:
     vector<Fl_5C_Item> getItems();
     Fl_5C_Node *getRootNode() const;
     Fl_5C_Node *getShortcutNode(unsigned long shortcut);
-    void loadConfig(string name);
+    void loadConfig(const char *name);
 };
 
+//! Holds the data for a node.
 struct Fl_5C_Item {
-    const char *label;
-    const char *shortcut_id;
-    unsigned long shortcut;
-    Fl_Callback *callback;
-    void *user_data;
-    bool leaf;
+    const char *label; //!< String displayed on screen during navigation.
+    const char *shortcut_id; //!< String used for shortcut changing from config files.
+    unsigned long shortcut; //!< Key combination that activates this item.  Put into table from buildNode().
+                            //!
+                            //! \see buildNode()
+    Fl_Callback *callback; //!< Action that occurs when this is clicked, if leaf.
+    void *user_data; //!< Passed into the callback.
+    bool leaf; //!< True if this is a leaf node.
+               //!
+               //! \see buildNode()
 };
 
 #define FL_5C_EMPTY_ITEM {"__empty__", 0, 0, 0, 0, true}
 
+//! Has an item, parent and children.  Upholds tree structure.
 struct Fl_5C_Node {
-    Fl_5C_Item item;
-    vector<Fl_5C_Node *> children;
-    Fl_5C_Node *parent;
+    Fl_5C_Item item; //!< The data for this node.
+    vector<Fl_5C_Node *> children; //!< Empty if leaf node.
+    Fl_5C_Node *parent; //!< Node to whom this is a child.
 };
 
 std::ostream& operator<<(std::ostream& os, const Fl_5C_Node& n);
