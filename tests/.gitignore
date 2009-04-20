@@ -3,5 +3,6 @@ trap
 popup
 treetest
 conftest
+editor
 *.o
 .*.swp
