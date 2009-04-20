@@ -70,13 +70,13 @@ NodeItems buildNode(Fl_5C_Item *items,
     NodeItems ni;
     NodeItems res;
 
-    if (items[0].shortcut != 0) {
-        table[items[0].shortcut] = ni.node;
-    }
-
     ni.items = items+1;
     ni.node = new Fl_5C_Node;
     ni.node->item = items[0];
+
+    if (items[0].shortcut != 0) {
+        table[items[0].shortcut] = ni.node;
+    }
 
     if (items[0].leaf) {
         return ni;

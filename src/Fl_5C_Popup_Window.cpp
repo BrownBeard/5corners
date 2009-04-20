@@ -28,6 +28,7 @@
 using namespace std;
 
 #define IS_EMPTY_ITEM(item) (strcmp((item).label, FL_5C_EMPTY_LABEL) == 0)
+#define SELECT_ITEM(item) { impl->selection = (item); hide(); return 1; }
 
 // struct Fl_5C_Popup_Window::Impl {{{
 struct Fl_5C_Popup_Window::Impl
@@ -125,47 +126,29 @@ void Fl_5C_Popup_Window::draw()
 int Fl_5C_Popup_Window::handle(int event)
 {
     // don't do anything if we don't have a tree
-    if (!impl->tree){
-        impl->selection = 0;
-        hide();
-        return 1;
-    }
+    if (!impl->tree) SELECT_ITEM(0);
 
     // let Fl_5C_Trap_Window trap the pointer
     if (Fl_5C_Trap_Window::handle(event)) return 1;
 
-    if (event == FL_PUSH){
-        if (Fl::event_button() == 1){
-            // left click: move forward through the tree
-            Fl_5C_Node* node = impl->current_node->children[impl->highlighted];
-            if (!IS_EMPTY_ITEM(node->item)){
-                if (node->item.leaf){
-                    // leaf node, select this one
-                    impl->selection = &node->item;
-                    hide();
-                }
-                else {
-                    // non-leaf node, descend the tree
-                    impl->current_node = node;
-                    redraw();
-                }
-            }
-        }
-        else if (Fl::event_button() == 3){
-            // right click: move backward through the tree
-            if (impl->current_node == impl->tree->getRootNode()){
-                // highest level, exit the popup window
-                impl->selection = 0;
-                hide();
-            }
-            else {
-                // ascend to a higher level
-                impl->current_node = impl->current_node->parent;
-                redraw();
-            }
-        }
+    // FL_FOCUS {{{
+    if (event == FL_FOCUS){
+        // we need this to receive shortcut events
         return 1;
     }
+    // }}}
+    // FL_SHORTCUT {{{
+    else if (event == FL_SHORTCUT){
+        // see if a tree item uses this shortcut
+        unsigned long shortcut = Fl::event_key();
+        if (Fl::event_ctrl ()) shortcut |= FL_CTRL;
+        if (Fl::event_alt  ()) shortcut |= FL_ALT;
+        if (Fl::event_shift()) shortcut |= FL_SHIFT;
+        Fl_5C_Node* node = impl->tree->getShortcutNode(shortcut);
+        if (node) SELECT_ITEM(&(node->item));
+    }
+    // }}}
+    // FL_MOVE {{{
     else if (event == FL_MOVE){
         // highlight the appropriate corner
         int i = (Fl::event_x() > w() / 2) ? 1 : 0;
@@ -174,6 +157,41 @@ int Fl_5C_Popup_Window::handle(int event)
         redraw();
         return 1;
     }
+    // }}}
+    // FL_PUSH {{{
+    else if (event == FL_PUSH){
+        // Left click {{{
+        if (Fl::event_button() == 1){
+            Fl_5C_Node* node = impl->current_node->children[impl->highlighted];
+            if (!IS_EMPTY_ITEM(node->item)){
+                if (node->item.leaf){
+                    // leaf node, select this one
+                    SELECT_ITEM(&(node->item));
+                }
+                else {
+                    // non-leaf node, descend the tree
+                    impl->current_node = node;
+                    redraw();
+                }
+            }
+        }
+        // }}}
+        // Right click {{{
+        else if (Fl::event_button() == 3){
+            if (impl->current_node == impl->tree->getRootNode()){
+                // highest level, exit the popup window
+                SELECT_ITEM(0);
+            }
+            else {
+                // ascend to a higher level
+                impl->current_node = impl->current_node->parent;
+                redraw();
+            }
+        }
+        // }}}
+        return 1;
+    }
+    // }}}
 
     return 0;
 }
@@ -192,6 +210,7 @@ Fl_5C_Item* Fl_5C_Popup_Window::popup()
     border(0);
     hotspot(this);
     show();
+    take_focus();
     while (shown()){
         Fl::wait();
     }

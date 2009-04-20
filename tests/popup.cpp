@@ -19,6 +19,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>
 #include "../src/Fl_5C_Popup_Window.h"
@@ -36,17 +38,18 @@ public:
 
 void cb(Fl_Widget* w, void* data)
 {
-    printf("item = %s\n", (const char*)data);
+    const char* str = (const char*)data;
+    printf("item = %s\n", str);
+    if (strcmp(str, "Exit") == 0) exit(0);
 }
 
 Fl_5C_Item items[] =
 {
     {"File"},
-        {"New",  0, 0, cb, (void*)"New",  true},
-        {"Open", 0, 0, cb, (void*)"Open", true},
+        {"New",  0, FL_CTRL | 'n', cb, (void*)"New",  true},
+        {"Open", 0, FL_CTRL | 'o', cb, (void*)"Open", true},
         FL_5C_EMPTY_ITEM,
-//      {"Save", 0, 0, cb, (void*)"Save", true},
-        {"Exit", 0, 0, cb, (void*)"Exit", true},
+        {"Exit", 0, FL_CTRL | 'e', cb, (void*)"Exit", true},
     {"Edit", 0, 0, cb, (void*)"Edit", true},
     {"View", 0, 0, cb, (void*)"View", true},
     {"Help", 0, 0, cb, (void*)"Help", true},
