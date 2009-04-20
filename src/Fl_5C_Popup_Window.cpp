@@ -19,12 +19,15 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <cstdio>
+#include <cstring>
 #include <vector>
 #include <FL/Fl.H>
 #include <FL/fl_draw.H>
 #include "Fl_5C_Popup_Window.h"
 #include "Fl_5C_Tree.h"
 using namespace std;
+
+#define IS_EMPTY_ITEM(item) (strcmp((item).label, FL_5C_EMPTY_LABEL) == 0)
 
 // struct Fl_5C_Popup_Window::Impl {{{
 struct Fl_5C_Popup_Window::Impl
@@ -36,6 +39,9 @@ struct Fl_5C_Popup_Window::Impl
 };
 // }}}
 // Fl_5C_Popup_Window::Fl_5C_Popup_Window(x, y, w, h, l) {{{
+//! @brief Constructor.
+//!
+//! See the FLTK documentation for a description of the parameters.
 Fl_5C_Popup_Window::Fl_5C_Popup_Window(int x, int y, int w, int h,
                                        const char* l)
 : Fl_5C_Trap_Window(x, y, w, h, l)
@@ -48,26 +54,35 @@ Fl_5C_Popup_Window::Fl_5C_Popup_Window(int x, int y, int w, int h,
 }
 // }}}
 // Fl_5C_Popup_Window::~Fl_5C_Popup_Window() {{{
+//! @brief Destructor.
 Fl_5C_Popup_Window::~Fl_5C_Popup_Window()
 {
     delete impl;
 }
 // }}}
 // Fl_5C_Popup_Window::clearTree() {{{
+//! @brief Clears the tree.
+//!
+//! Same as setTree(NULL).
 void Fl_5C_Popup_Window::clearTree()
 {
-    impl->tree = 0;
+    setTree(0);
 }
 // }}}
 // Fl_5C_Popup_Window::getTree() {{{
+//! @brief Gets the tree.
+//! @return The tree passed to setTree().
 Fl_5C_Tree* Fl_5C_Popup_Window::getTree()
 {
     return impl->tree;
 }
 // }}}
 // Fl_5C_Popup_Window::draw() {{{
+//! @brief Draws the contents of the window.
 void Fl_5C_Popup_Window::draw()
 {
+    if (!impl->current_node) return;
+
     // draw the outline
     fl_color(FL_WHITE);
     fl_rectf(0, 0, w(), h());
@@ -83,18 +98,39 @@ void Fl_5C_Popup_Window::draw()
         Fl_5C_Item& item = impl->current_node->children[i]->item;
         int x = (i == 0 || i == 3) ? 0 : w() / 2;
         int y = (i == 0 || i == 1) ? 0 : h() / 2;
-        if (impl->highlighted == i){
-            fl_color(0xff, 0xff, 0xaa);
+        if (IS_EMPTY_ITEM(item)){
+            // empty item, draw a gray box
+            fl_color(FL_BLACK);
             fl_rectf(x + 1, y + 1, w() / 2 - 2, h() / 2 - 2);
         }
-        fl_color(FL_BLACK);
-        fl_draw(item.label, x, y, w() / 2, h() / 2, FL_ALIGN_CENTER);
+        else {
+            // non-empty item, draw the text and possibly highlighting
+            if (impl->highlighted == i){
+                fl_color(0xff, 0xff, 0xaa);
+                fl_rectf(x + 1, y + 1, w() / 2 - 2, h() / 2 - 2);
+            }
+            fl_color(FL_BLACK);
+            fl_draw(item.label, x, y, w() / 2, h() / 2, FL_ALIGN_CENTER);
+        }
     }
 }
 // }}}
 // Fl_5C_Popup_Window::handle(event) {{{
+//! @brief Handles events.
+//! @param event FLTK event to handle.
+//! @return 1 if handled, 0 otherwise.
+//!
+//! Handles events like mouse clicks and movements to navigate through the
+//! tree.
 int Fl_5C_Popup_Window::handle(int event)
 {
+    // don't do anything if we don't have a tree
+    if (!impl->tree){
+        impl->selection = 0;
+        hide();
+        return 1;
+    }
+
     // let Fl_5C_Trap_Window trap the pointer
     if (Fl_5C_Trap_Window::handle(event)) return 1;
 
@@ -102,15 +138,17 @@ int Fl_5C_Popup_Window::handle(int event)
         if (Fl::event_button() == 1){
             // left click: move forward through the tree
             Fl_5C_Node* node = impl->current_node->children[impl->highlighted];
-            if (node->item.leaf){
-                // leaf node, select this one
-                impl->selection = &node->item;
-                hide();
-            }
-            else {
-                // non-leaf node, descend the tree
-                impl->current_node = node;
-                redraw();
+            if (!IS_EMPTY_ITEM(node->item)){
+                if (node->item.leaf){
+                    // leaf node, select this one
+                    impl->selection = &node->item;
+                    hide();
+                }
+                else {
+                    // non-leaf node, descend the tree
+                    impl->current_node = node;
+                    redraw();
+                }
             }
         }
         else if (Fl::event_button() == 3){
@@ -141,8 +179,16 @@ int Fl_5C_Popup_Window::handle(int event)
 }
 // }}}
 // Fl_5C_Popup_Window::popup() {{{
+//! @brief Pops up the window.
+//! @return The item that was selected, or NULL if nothing was selected.
+//!
+//! Displays a popup 5 Corners window with the selection tree.  Left click on
+//! an item to select the item or to its subtree.  Right click to go back up
+//! the tree.  If no tree has been set with setTree() or the user right-clicks
+//! out of the tree, the function returns NULL.
 Fl_5C_Item* Fl_5C_Popup_Window::popup()
 {
+    if (!impl->tree) return 0;
     border(0);
     hotspot(this);
     show();
@@ -152,15 +198,24 @@ Fl_5C_Item* Fl_5C_Popup_Window::popup()
     return impl->selection;
 }
 // }}}
-// Fl_5C_Popup_Window::setTree() {{{
+// Fl_5C_Popup_Window::setTree(tree) {{{
+//! @brief Sets the tree.
+//! @param tree Pointer to the tree to use.
+//!
+//! Sets the tree used by the popup window.  NULL is valid.
 void Fl_5C_Popup_Window::setTree(Fl_5C_Tree* tree)
 {
     impl->tree = tree;
-    impl->current_node = tree->getRootNode();
+    impl->current_node = tree ? tree->getRootNode() : 0;
 }
 // }}}
 
 // fl_popup_5c_window(tree) {{{
+//! @brief Pops up a 5 Corners window.
+//! @param tree Tree to use in the window.
+//!
+//! Displays an Fl_5C_Popup_Window with the given tree.  If an item is
+//! selected, its callback is called.  Otherwise, nothing happens.
 void fl_popup_5c_window(Fl_5C_Tree* tree)
 {
     Fl_5C_Popup_Window window(0, 0, 320, 240, "5Corners");

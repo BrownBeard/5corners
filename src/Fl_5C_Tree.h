@@ -71,7 +71,8 @@ struct Fl_5C_Item {
                //! \see buildNode()
 };
 
-#define FL_5C_EMPTY_ITEM {"__empty__", 0, 0, 0, 0, true}
+#define FL_5C_EMPTY_LABEL "__empty__"
+#define FL_5C_EMPTY_ITEM {FL_5C_EMPTY_LABEL, 0, 0, 0, 0, true}
 
 //! Has an item, parent and children.  Upholds tree structure.
 struct Fl_5C_Node {

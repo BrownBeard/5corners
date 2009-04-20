@@ -18,6 +18,9 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+//! @file Fl_5C_Popup_Window.h
+//! @brief Header file for Fl_5C_Popup_Window
+
 #ifndef _5C_FL_5C_POPUP_WINDOW_H
 #define _5C_FL_5C_POPUP_WINDOW_H
 
@@ -27,6 +30,7 @@ class Fl_5C_Tree;
 class Fl_5C_Item;
 
 // class Fl_5C_Popup_Window {{{
+//! @brief Type of window used for 5 Corners.
 class Fl_5C_Popup_Window : public Fl_5C_Trap_Window
 {
 public:
