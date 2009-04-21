@@ -148,6 +148,7 @@ int main(int argc, char** argv)
         {"Quit", 0, FL_CTRL | 'q', quit_cb, 0, true},
     };
     tree = new Fl_5C_Tree(items);
+    tree->loadConfig("editor.conf");
 
     // create the editor
     buffer = new Fl_Text_Buffer;

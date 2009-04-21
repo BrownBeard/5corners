@@ -73,6 +73,12 @@ NodeItems buildNode(Fl_5C_Item *items,
     ni.items = items+1;
     ni.node = new Fl_5C_Node;
     ni.node->item = items[0];
+    if (!ni.node->item.label){
+        ni.node->item.label = "";
+    }
+    if (!ni.node->item.shortcut_id){
+        ni.node->item.shortcut_id = ni.node->item.label;
+    }
 
     if (items[0].shortcut != 0) {
         table[items[0].shortcut] = ni.node;
