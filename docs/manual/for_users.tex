@@ -1,3 +1,114 @@
 \chapter{For Users}
 
-..
+% Introduction
+
+\section{Introduction and Philosophy}
+
+In the programs that you usually use, many of the features are presented to
+you in a menu bar.  It is the purpose of \fc{} to replace that system with one
+that is more efficient.  Have you ever tried to sneak from a drop-down menu to
+a submenu, only to activate a neighboring submenu?  It's irritating.  That's
+essentially the problem we're trying to solve.
+
+The reason there is a problem with traditional menu bars is that the clicks
+which the user is required to make are difficult.  Intuition indicates that
+the difficulty of making a click depends on (among other things): the distance
+from the cursor's current location, and the smallness of the target.  \fc{}
+attempts to exploit these observations to make each click as easy as possible.
+
+Obviously, the way to exploit the distance observation is by setting the
+distance to 0.  That is done by using right-click style actions, where a click
+anywhere within the window is acceptable.
+
+Exploiting the size-of-target idea is less obvious, but possible.  Most
+operating systems have something that is accessible from a corner (e.g., the
+Start menu in Windows).  Open that as fast as you can \ldots easy, isn't it?
+That's because it's in a corner.  Being in a corner traps the cursor in both
+of the dimensions of the screen, meaning that the size is effectively
+infinite.  You can overshoot the target as much as you feel like, as long as
+you're aiming at it.
+
+So, there are 5 ways to click efficiently: in any of the four corners, or
+right-clicking.  We decided right-clicking is kind of like a corner, so we
+called it \fc.
+
+By using these principles, \fc{} is able to present all of the features while
+requiring only easy clicks.  It is a similar sort of improvement that many
+users find by using keyboard commands as often as possible---actions are
+executed in constant time, so it feels more immediate.
+
+% Navigating the menu
+
+\section{Navigating the Menu}
+
+%   Starting the popup
+
+\subsection{Opening It}
+
+You can right-click anywhere in the program's window, and the \fc{} menu will
+pop up.  It will try to place the window such that your cursor is in the
+center, but it might not be possible.  For instance, if you click too far
+toward an edge.
+
+This window will trap your cursor.  Don't worry, you can get out of there by
+right-clicking again.  It traps it so that you can be constrained by the
+corners---that's the point of \fc.  You can now carelessly launch your mouse
+in the right direction and still be in the right place.  Or you can go to it
+more meekly, if you want.
+
+%   Making the selection
+
+\subsection{Doing Things}
+
+When you've got a square highlighted, you can left-click anywhere in the
+square.  That will do one of two things: if you've highlighted an action, it
+will perform the action and close the menu.  Otherwise, you're looking at a
+submenu, in which case left-clicking will drop you into that submenu.  (You
+might also have tried clicking on an empty item, which looks like a black box.
+That won't do anything.)
+
+%   Getting back
+
+\subsection{Retreating}
+
+Anywhere within the \fc{} menu, you can right-click, and it will take you
+back.  If you're in a submenu, it will take you to the parent, and if you're
+in the top-level menu, it will close the window.  Much like when entering the
+menu, the position of your cursor doesn't matter.
+
+% Keyboard shortcuts
+
+\section{Keyboard Shortcuts}
+
+%   Usage
+
+\subsection{Usage}
+
+Sometimes, keyboard shortcuts are also provided in a \fc{} program.  You'll
+have to check the documentation of your particular program to find out what
+they are, but to execute them, you just punch in the key combination (without
+having the \fc{} menu open).  It's rather obvious.
+
+%   Configuring
+
+\subsection{Configuring}
+
+If your program supports it, then you can configure the keyboard shortcuts by
+editing a configuration file.  They are looked for in the directory
+\texttt{\symbol{126}/.5corners/}, and are called \texttt{<progname>.conf}.
+They contain lines with the format \texttt{shortcut "<action>" <key
+combination>}.
+
+As an example, let's say that you've got a program called \texttt{editor}, and
+you want to make ctrl-K a shortcut for copy.  What you need is a file called
+\texttt{\symbol{126}/.5corners/editor.conf}, with the following contents:
+
+\begin{verbatim}
+shortcut "Copy" CTRL k
+\end{verbatim}
+
+Note that the key combination will interpret \texttt{CTRL}, \texttt{ALT} and
+\texttt{SHIFT}; anything else should be a single character that indicates
+which key you want.  There can only be one key besides the modifiers, and
+spaces are used to separate modifiers from each other and the key.  Your
+program's documentation should provide you with the labels for the actions.

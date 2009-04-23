@@ -1,15 +1,19 @@
-\documentclass{report}
+\documentclass[12pt]{report}
 
-\title{5Corners Manual}
-\author{Adam Seyfarth \and Sam Bateman}
-\date{}
+\usepackage{graphicx}
+
+%\title{\fc}
+%\author{Adam Seyfarth \and Sam Bateman}
+%\date{}
 
 \begin{document}
 
-\maketitle
+\newcommand{\fc}{\textsc{5 Corners}}
+
+\include{titlepage}
 \tableofcontents
 
-\include{for_coders}
 \include{for_users}
+\include{for_coders}
 
 \end{document}
