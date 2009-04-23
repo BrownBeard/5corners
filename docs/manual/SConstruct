@@ -1,1 +1,3 @@
 PDF('manual.tex')
+
+# vim: ft=python
