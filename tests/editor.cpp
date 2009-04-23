@@ -54,15 +54,21 @@ public:
 // MyWindow::handle(event) {{{
 int MyWindow::handle(int event)
 {
-    // handle right clicks
+    // handle right clicks and their consequences
     if (event == FL_PUSH && Fl::event_button() == 3){
         fl_popup_5c_window(tree);
+        return 1;
+    }
+    if (Fl::pushed() == this &&
+        (event == FL_DRAG || event == FL_RELEASE)){
         return 1;
     }
 
     // it's kind of weird that we need this...
     for (int i = 0; i < children(); ++i){
-        if (child(i)->handle(event)) return 1;
+        if (child(i)->handle(event)){
+            return 1;
+        }
     }
     return 0;
 }
@@ -73,6 +79,7 @@ int MyWindow::handle(int event)
 void new_cb(Fl_Widget*, void*)
 {
     buffer->remove(0, buffer->length());
+    current_file = "";
 }
 // }}}
 // open_cb() {{{

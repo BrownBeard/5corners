@@ -211,6 +211,7 @@ Fl_5C_Item* Fl_5C_Popup_Window::popup()
     hotspot(this);
     show();
     take_focus();
+    set_modal();
     while (shown()){
         Fl::wait();
     }

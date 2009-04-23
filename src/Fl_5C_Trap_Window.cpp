@@ -41,7 +41,7 @@ Fl_5C_Trap_Window::Fl_5C_Trap_Window(int x, int y, int w, int h, const char* l)
 //! pointer-trapping functionality.
 int Fl_5C_Trap_Window::handle(int event)
 {
-    if (event == FL_ENTER){
+    if (event == FL_ENTER || event == FL_SHOW){
         // TODO: find a Win32 solution
         XGrabPointer(fl_display, fl_xid(this), True,
                      ButtonPressMask | ButtonReleaseMask | PointerMotionMask,
