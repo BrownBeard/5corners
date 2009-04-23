@@ -64,7 +64,7 @@ int MyWindow::handle(int event)
         return 1;
     }
 
-    // it's kind of weird that we need this...
+    // forward other events to our children
     for (int i = 0; i < children(); ++i){
         if (child(i)->handle(event)){
             return 1;

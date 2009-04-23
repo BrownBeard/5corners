@@ -1,3 +1,329 @@
+% Outline:
+%
+% II. For Coders
+%   A. Editor Tutorial
+%     1. Global Variables
+%     2. MainWindow Class
+%       a. handle() function
+%     3. Callback Functions
+%     4. main() Function
+%       a. Tree items
+%   B. Detailed Description
+%     1. Fl_5C_Tree and _Item
+%     2. Fl_5C_Popup_Window
+%     3. Fl_5C_Trap_Window
+
 \chapter{For Coders}
 
+This chapter gives an overview of how to use the \fc{} library.  The first
+section gives a tutorial on creating a simple text editor with a popup \fc{}
+window.  The second section gives a more detailed description of how to use
+the \texttt{Fl\_5C\_*} classes.
+
+\section{Editor Tutorial}
+
+This section describes how to create a simple text editor program using the
+\fc{} library.  The full source code of the editor is available in the git
+repository as \texttt{tests/editor.cpp}.
+
+\subsection{Global Variables}
+
+After all the necessary include files, several global variables are defined as
+follows:
+
+\begin{samepage}
+\begin{verbatim}
+class MainWindow;
+MainWindow* window;
+Fl_5C_Tree* tree;
+Fl_Text_Editor* editor;
+Fl_Text_Buffer* buffer;
+string current_file;
+\end{verbatim}
+\end{samepage}
+
+\subsection{MainWindow Class}
+
+The \texttt{MainWindow} class holds an \texttt{Fl\_Text\_Editor} and is
+responsible for popping up the \fc{} menu when the user right-clicks.
+
+\begin{samepage}
+\begin{verbatim}
+class MyWindow : public Fl_Window
+{
+public:
+    MyWindow(int x, int y, int w, int h, const char* l)
+    : Fl_Window(x, y, w, h, l) {}
+
+    int handle(int event);
+};
+\end{verbatim}
+\end{samepage}
+
+The \texttt{handle()} function is responsible for intercepting right-clicks
+from the user in order to pop up the \fc{} menu.  All other events must be
+forwarded to the \texttt{Fl\_Text\_Editor} so that it can provide all of our
+editing functionality.
+
+\begin{samepage}
+\begin{verbatim}
+int MyWindow::handle(int event)
+{
+    // handle right clicks and their consequences
+    if (event == FL_PUSH && Fl::event_button() == 3){
+        fl_popup_5c_window(tree);
+        return 1;
+    }
+    if (Fl::pushed() == this &&
+        (event == FL_DRAG || event == FL_RELEASE)){
+        return 1;
+    }
+
+    // forward other events to our children
+    for (int i = 0; i < children(); ++i){
+        if (child(i)->handle(event)){
+            return 1;
+        }
+    }
+    return 0;
+}
+\end{verbatim}
+\end{samepage}
+
+\subsection{Callback Functions}
+
+We want the editor to have cut, copy, and paste functionality so that it will
+be marginally useful to users.  We also want it to be able to create new
+files, open existing files, save to an already-opened file, and save to a new
+file.  To get all of this functionality, we need several callback functions
+for the \texttt{Fl\_5C\_Item} array that we will create later.
+
+\subsubsection{new\_cb}
+
+This function clears the buffer.  It is called when the user selects the "New"
+menu item.
+
+\begin{samepage}
+\begin{verbatim}
+void new_cb(Fl_Widget*, void*)
+{
+    buffer->remove(0, buffer->length());
+    current_file = "";
+}
+\end{verbatim}
+\end{samepage}
+
+\subsubsection{open\_cb}
+
+This function opens an existing file.  It is called when the user selects the
+"Open" menu item.
+
+\begin{samepage}
+\begin{verbatim}
+void open_cb(Fl_Widget*, void*)
+{
+    const char* chosen = fl_file_chooser("Open File", NULL, NULL);
+    if (!chosen) return;
+    if (buffer->loadfile(chosen) == 0) current_file = chosen;
+    else fl_alert("%s", strerror(errno));
+}
+\end{verbatim}
+\end{samepage}
+
+\subsubsection{saveas\_cb}
+
+This function saves to a new file.  It is called when the user selects the
+"Save As" menu item.
+
+\begin{samepage}
+\begin{verbatim}
+void saveas_cb(Fl_Widget*, void*)
+{
+    const char* chosen = fl_file_chooser("Save File", NULL, NULL);
+    if (!chosen) return;
+    if (buffer->savefile(chosen) == 0) current_file = chosen;
+    else fl_alert("%s", strerror(errno));
+}
+\end{verbatim}
+\end{samepage}
+
+\subsubsection{save\_cb}
+
+This function saves to the current file or, if there is no file open, to a new
+file.  It is called when the user selects the "Save" menu item.
+
+\begin{samepage}
+\begin{verbatim}
+void save_cb(Fl_Widget*, void*)
+{
+    if (current_file == "") saveas_cb(w, d);
+    else if (buffer->savefile(current_file.c_str()) != 0){
+        fl_alert("%s", strerror(errno));
+    }
+}
+\end{verbatim}
+\end{samepage}
+
+\subsubsection{cut\_cb, copy\_cb, and paste\_cb}
+
+These functions cut, copy, and paste selected text to and from the buffer.
+They are called when the user selects the "Cut", "Copy", and "Paste" menu
+items, respectively.
+
+\begin{samepage}
+\begin{verbatim}
+void cut_cb(Fl_Widget*, void*)
+{
+    Fl_Text_Editor::kf_cut(0, editor);
+}
+void copy_cb(Fl_Widget*, void*)
+{
+    Fl_Text_Editor::kf_copy(0, editor);
+}
+void paste_cb(Fl_Widget*, void*)
+{
+    Fl_Text_Editor::kf_paste(0, editor);
+}
+\end{verbatim}
+\end{samepage}
+
+\subsubsection{quit\_cb}
+
+This function exits the program.  If you want to be fancy, you can check
+whether the file is currently modified and ask if the user wants to save.  It
+currently does not do that.  It is called when the user selects the "Quit"
+menu item.
+
+\begin{samepage}
+\begin{verbatim}
+void quit_cb(Fl_Widget*, void*)
+{
+    exit(0);
+}
+\end{verbatim}
+\end{samepage}
+
+\subsection{main() Function}
+
+The main function ties the program together.  It populates \texttt{tree} with
+a \texttt{Fl\_5C\_Item} array, creates \texttt{editor}, \texttt{buffer}, and
+\texttt{window}, and runs the FLTK event loop.
+
+First, let's create the \texttt{tree}:
+
+\begin{samepage}
+\begin{verbatim}
+int main(int argc, char** argv)
+{
+    Fl_5C_Item items[] =
+    {
+        {"File"},
+            {"New",     0, FL_CTRL |            'n', new_cb,    0, true},
+            {"Open",    0, FL_CTRL |            'o', open_cb,   0, true},
+            {"Save",    0, FL_CTRL |            's', save_cb,   0, true},
+            {"Save As", 0, FL_CTRL | FL_SHIFT | 's', saveas_cb, 0, true},
+        {"Edit"},
+            {"Cut",   0, FL_CTRL | 'x', cut_cb,   0, true},
+            {"Copy",  0, FL_CTRL | 'c', copy_cb,  0, true},
+            {"Paste", 0, FL_CTRL | 'v', paste_cb, 0, true},
+            FL_5C_EMPTY_ITEM,
+        FL_5C_EMPTY_ITEM,
+        {"Quit", 0, FL_CTRL | 'q', quit_cb, 0, true},
+    };
+    tree = new Fl_5C_Tree(items);
+    tree->loadConfig("editor.conf");
+\end{verbatim}
+\end{samepage}
+
+Now let's create the editor and add it to a window:
+
+\begin{samepage}
+\begin{verbatim}
+    buffer = new Fl_Text_Buffer;
+    editor = new Fl_Text_Editor(0, 0, 640, 480);
+    editor->buffer(buffer);
+    editor->textfont(FL_COURIER);
+
+    window = new MyWindow(0, 0, 640, 480, "5 Corners Text Editor");
+    window->add(editor);
+    window->end();
+    window->resizable(editor);
+    window->show(argc, argv);
+    Fl::run();
+}
+\end{verbatim}
+\end{samepage}
+
+And we're done.  Edit away!
+
+\section{Detailed Description}
+
+This section gives a more detailed explanation of how to use the \fc{} library
+classes and functions.  For a listing of everything that's anything in the
+library, see the Doxygen documentation in the \texttt{docs/html/} directory.
+
+There are 3 main classes in the library.  These are the window class
+(\texttt{Fl\_5C\_Popup\_Window}) and the tree classes (\texttt{Fl\_5C\_Tree}
+and \texttt{Fl\_5C\_Item}).
+
+\subsection{Fl\_5C\_Tree and Fl\_5C\_Item}
+
+The basic method of creating menus in \fc{} is to create an
+\texttt{Fl\_5C\_Item} array.  The array is structured in a similar way to how
+an \texttt{Fl\_Menu\_Item} array is structured in order to create a
+traditional menu.  \texttt{Fl\_5C\_Item} is defined as follows:
+
+\begin{samepage}
+\begin{verbatim}
+struct Fl_5C_Item
+{
+    const char* label;
+    const char* shortcut_id;
+    unsigned long shortcut;
+    Fl_Callback* callback;
+    void* user_data;
+    bool leaf;
+};
+\end{verbatim}
+\end{samepage}
+
+This allows for the creation of static arrays of menu items in a
+one-dimensional array as seen in the editor tutorial.  \texttt{label} is the
+string that the user sees when the item is displayed.  \texttt{shortcut\_id}
+is a simpler string that can be used in a config file.  If
+\texttt{shortcut\_id} is NULL, it defaults to \texttt{label}.
+\texttt{shortcut} is the key combination that activates the menu item.  It can
+be a bitwise ORed combination of \texttt{FL\_CTRL}, \texttt{FL\_ALT},
+\texttt{FL\_SHIFT}, and any single character.  \texttt{callback} is the
+function that is called when the menu item is selected, and
+\texttt{user\_data} is the parameter that is passed to \texttt{callback}.
+Finally, \texttt{leaf} determines whether the item will open a submenu when
+the user chooses it.
+
+Creating an \texttt{Fl\_5C\_Tree} is simple, given such an array of
+\texttt{Fl\_5C\_Item}:
+
+\begin{samepage}
+\begin{verbatim}
+Fl_5C_Item items[] = {
+   ...
+};
+Fl_5C_Tree tree(items);
+\end{verbatim}
+\end{samepage}
+
+\subsection{Fl\_5C\_Popup\_Window}
+
+\texttt{Fl\_5C\_Popup\_Window} is the main class used for opening a \fc{}
+window.  However, it is usually not used directly.  Instead, the convenience
+function \texttt{fl\_popup\_5c\_window} is used.  The function simply pops up
+a window and calls the callback of whatever item is selected, or does nothing
+if no item is selected.  The syntax is extremely simple:
+
+\begin{samepage}
+\begin{verbatim}
+Fl_5C_Tree* tree;
 ...
+fl_popup_5c_window(tree);
+\end{verbatim}
+\end{samepage}
